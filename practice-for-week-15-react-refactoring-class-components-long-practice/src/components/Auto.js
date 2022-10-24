@@ -1,37 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-class AutoComplete extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      inputVal: '',
-      showList: false
-    };
-    this.inputRef = React.createRef();
-  }
+const AutoComplete = () => {
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {
+  //     inputVal: '',
+  //     showList: false
+  //   };
+  //   this.inputRef = React.createRef();
+  // }
 
-  componentDidUpdate() {
-    if (this.state.showList) {
-      document.addEventListener('click', this.handleOutsideClick);
+  const [inputVal, setInputVal] = useState()
+  const [showList, toggleShowList] = useState()
+  const [inputRef, setInputRef] = useState(React.createRef())
+
+  useEffect(() => {
+    if (showList) {
+      document.addEventListener('click', handleOutsideClick);
     } else {
       console.log("Removing Autocomplete listener on update!");
-      document.removeEventListener('click', this.handleOutsideClick);
+      document.removeEventListener('click', handleOutsideClick);
     }
-  }
 
-  componentWillUnmount () {
-    console.log("Cleaning up event listener from Autocomplete!");
-    document.removeEventListener('click', this.handleOutsideClick);
-  }
+    return (() => {
+      console.log("Cleaning up event listener from Autocomplete!");
+      document.removeEventListener('click', handleOutsideClick);
+    })
+  }, [showList])
+
+  // componentDidUpdate() {
+  //   if (this.state.showList) {
+  //     document.addEventListener('click', this.handleOutsideClick);
+  //   } else {
+  //     console.log("Removing Autocomplete listener on update!");
+  //     document.removeEventListener('click', this.handleOutsideClick);
+  //   }
+  // }
+
+  // componentWillUnmount () {
+  //   console.log("Cleaning up event listener from Autocomplete!");
+  //   document.removeEventListener('click', this.handleOutsideClick);
+  // }
 
   handleInput = (e) => {
-    this.setState({ inputVal: e.target.value });
+    setInputVal(e.target.value );
   }
 
   selectName = ({ target:  { innerText: name }}) => {
-    this.setState({ inputVal: name, showList: false });
+    setInputVal(name);
+    toggleShowList(false); 
   }
+  
 
   // Set focus to input field if user clicks anywhere inside the Autocomplete
   // section (unless they have selected a name from the dropdown list)
@@ -41,7 +61,7 @@ class AutoComplete extends React.Component {
     }
   }
 
-  handleOutsideClick = () => {
+ const handleOutsideClick = () => {
     // Leave dropdown visible as long as input is focused
     if (document.activeElement === this.inputRef.current) return;
     else this.setState({ showList: false });
